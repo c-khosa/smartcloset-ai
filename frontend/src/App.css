@@ -14,8 +14,15 @@ body {
 }
 
 button,
-a {
+a,
+input,
+select,
+textarea {
   font-family: inherit;
+}
+
+button {
+  transition: 0.2s ease;
 }
 
 .app {
@@ -42,6 +49,7 @@ a {
   font-size: 26px;
   font-weight: 700;
   letter-spacing: -0.5px;
+  color: white;
 }
 
 .nav-right {
@@ -53,15 +61,14 @@ a {
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 32px;
+  gap: 30px;
 }
 
 .nav-links a {
-  color: #e9eef5;
+  color: #dce6f2;
   text-decoration: none;
   font-size: 15px;
   font-weight: 500;
-  transition: 0.2s ease;
 }
 
 .nav-links a:hover {
@@ -69,19 +76,62 @@ a {
 }
 
 .nav-button {
-  background: #2f63d7;
-  color: white;
   border: none;
   padding: 13px 22px;
   border-radius: 10px;
-  font-weight: 600;
+  background: #2f63d7;
+  color: white;
+  font-size: 15px;
+  font-weight: 700;
   cursor: pointer;
-  transition: 0.2s ease;
 }
 
 .nav-button:hover {
-  transform: translateY(-2px);
   background: #2859c7;
+  transform: translateY(-2px);
+}
+
+/* =========================
+   GENERAL BUTTONS
+========================= */
+
+.primary-button {
+  padding: 15px 26px;
+  border: none;
+  border-radius: 10px;
+  background: #2f63d7;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(47, 99, 215, 0.2);
+}
+
+.primary-button:hover:not(:disabled) {
+  background: #2859c7;
+  transform: translateY(-2px);
+}
+
+.primary-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.secondary-button {
+  padding: 15px 26px;
+  border: 1px solid #d7deea;
+  border-radius: 10px;
+  background: white;
+  color: #0f1b2d;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.secondary-button:hover {
+  border-color: #b8c4d5;
+  transform: translateY(-2px);
 }
 
 /* =========================
@@ -90,22 +140,23 @@ a {
 
 .hero {
   min-height: calc(100vh - 88px);
-  padding: 80px 5% 60px;
+  padding: 80px 5% 70px;
   display: grid;
   grid-template-columns: 1.05fr 0.95fr;
   gap: 70px;
   align-items: center;
+
   background:
     radial-gradient(
-      circle at 78% 42%,
-      rgba(47, 99, 215, 0.11),
-      transparent 28%
+      circle at 80% 42%,
+      rgba(47, 99, 215, 0.12),
+      transparent 27%
     ),
     linear-gradient(to bottom, #ffffff, #f7f9fc);
 }
 
 .hero-content {
-  max-width: 680px;
+  max-width: 700px;
 }
 
 .badge {
@@ -115,15 +166,14 @@ a {
   border-radius: 999px;
   background: #edf3ff;
   color: #2f63d7;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 700;
-  letter-spacing: 0.4px;
+  letter-spacing: 0.5px;
 }
 
 .hero h1 {
   margin: 0;
-  max-width: 720px;
-  font-size: clamp(48px, 5vw, 76px);
+  font-size: clamp(50px, 5vw, 76px);
   line-height: 1.02;
   letter-spacing: -2.5px;
   color: #0f1b2d;
@@ -136,9 +186,9 @@ a {
 .hero-description {
   max-width: 620px;
   margin: 26px 0 0;
-  color: #5f6f82;
   font-size: 19px;
   line-height: 1.75;
+  color: #617185;
 }
 
 .hero-actions {
@@ -147,54 +197,19 @@ a {
   margin-top: 34px;
 }
 
-.primary-button {
-  padding: 15px 25px;
-  border: none;
-  border-radius: 10px;
-  background: #2f63d7;
-  color: white;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 10px 25px rgba(47, 99, 215, 0.22);
-  transition: 0.2s ease;
-}
-
-.primary-button:hover {
-  transform: translateY(-2px);
-  background: #2859c7;
-}
-
-.secondary-button {
-  padding: 15px 25px;
-  border-radius: 10px;
-  border: 1px solid #d7deea;
-  background: white;
-  color: #0f1b2d;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s ease;
-}
-
-.secondary-button:hover {
-  transform: translateY(-2px);
-  border-color: #b8c5d8;
-}
-
 .social-proof {
-  margin-top: 34px;
-  color: #718096;
+  margin-top: 30px;
+  color: #7a8798;
   font-size: 14px;
 }
 
 /* =========================
-   HERO VISUAL AREA
+   HERO VISUAL
 ========================= */
 
 .hero-visual {
   position: relative;
-  min-height: 560px;
+  min-height: 570px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -202,39 +217,39 @@ a {
 
 .visual-glow {
   position: absolute;
-  width: 470px;
-  height: 470px;
+  width: 450px;
+  height: 450px;
   border-radius: 50%;
-  background: rgba(47, 99, 215, 0.07);
-  filter: blur(2px);
+  background: rgba(47, 99, 215, 0.08);
 }
 
 /* =========================
-   CARDS
+   HERO CARDS
 ========================= */
 
 .wardrobe-card,
 .outfit-card {
-  position: relative;
-  z-index: 2;
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid #e5eaf2;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid #e3e9f1;
   border-radius: 22px;
   box-shadow: 0 24px 60px rgba(15, 27, 45, 0.11);
 }
 
 .wardrobe-card {
+  position: relative;
+  z-index: 2;
   width: 330px;
   padding: 22px;
-  transform: translateX(-70px);
+  transform: translateX(-65px);
 }
 
 .outfit-card {
-  width: 275px;
-  padding: 20px;
   position: absolute;
-  right: 0;
+  z-index: 3;
+  right: 5px;
   bottom: 40px;
+  width: 280px;
+  padding: 20px;
 }
 
 .card-heading {
@@ -251,17 +266,14 @@ a {
 
 .add-item-button {
   padding: 8px 12px;
-  border: 1px solid #dfe6ef;
+  border: 1px solid #dbe3ee;
+  border-radius: 8px;
   background: white;
-  border-radius: 9px;
   color: #2f63d7;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
 }
-
-/* =========================
-   WARDROBE GRID
-========================= */
 
 .wardrobe-grid {
   display: grid;
@@ -271,49 +283,45 @@ a {
 
 .clothing-item {
   aspect-ratio: 1 / 1;
-  border-radius: 14px;
-  background: #f3f6fa;
+  border: 1px solid #e7ebf1;
+  border-radius: 13px;
+  background: #f4f6f9;
+  color: #8491a2;
+  font-size: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8a98aa;
-  font-size: 12px;
-  border: 1px solid #edf0f5;
 }
-
-/* =========================
-   OUTFIT CARD
-========================= */
 
 .outfit-label {
   margin: 0;
+  color: #718096;
   font-size: 13px;
-  color: #6e7c8f;
 }
 
 .outfit-card h3 {
-  margin: 4px 0 16px;
+  margin: 5px 0 16px;
   font-size: 20px;
 }
 
 .outfit-preview {
   height: 270px;
-  border-radius: 16px;
+  border: 1px solid #edf0f4;
+  border-radius: 15px;
   background: linear-gradient(145deg, #f7f8fb, #eef2f7);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #8b98a9;
-  border: 1px solid #edf0f4;
+  color: #8a97a8;
 }
 
 .outfit-meta {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: 15px;
   margin-top: 16px;
   font-size: 13px;
-  color: #6f7d90;
+  color: #68778a;
 }
 
 .match-score {
@@ -322,12 +330,12 @@ a {
 }
 
 /* =========================
-   FEATURE BAR
+   FEATURES
 ========================= */
 
 .features {
   margin: 0 5% 60px;
-  padding: 28px 32px;
+  padding: 28px 30px;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 28px;
@@ -362,9 +370,233 @@ a {
 
 .feature p {
   margin: 0;
-  color: #77869a;
   font-size: 13px;
   line-height: 1.5;
+  color: #77869a;
+}
+
+/* =========================
+   WARDROBE PAGE
+========================= */
+
+.wardrobe-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 70px 30px 100px;
+}
+
+.wardrobe-page h1 {
+  margin: 10px 0;
+  font-size: 52px;
+  letter-spacing: -1.5px;
+  color: #0f1b2d;
+}
+
+.wardrobe-description {
+  max-width: 680px;
+  margin-bottom: 40px;
+  color: #68778a;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.upload-section {
+  margin-bottom: 28px;
+  padding: 28px;
+  background: white;
+  border: 1px solid #e3e9f1;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(15, 27, 45, 0.05);
+}
+
+.upload-section h3 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  color: #0f1b2d;
+}
+
+.upload-box {
+  min-height: 135px;
+  border: 2px dashed #c7d3e3;
+  border-radius: 14px;
+  background: #f8fafe;
+  color: #2f63d7;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.upload-box:hover {
+  border-color: #2f63d7;
+  background: #f2f6ff;
+}
+
+.user-photo-preview {
+  margin-top: 22px;
+}
+
+.user-photo-preview img {
+  width: 220px;
+  height: 280px;
+  object-fit: cover;
+  border-radius: 16px;
+  border: 1px solid #dfe6ef;
+  display: block;
+  box-shadow: 0 10px 25px rgba(15, 27, 45, 0.08);
+}
+
+.clothes-grid {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.clothing-card {
+  padding: 12px;
+  background: white;
+  border: 1px solid #e1e7ef;
+  border-radius: 15px;
+}
+
+.clothing-card img {
+  width: 100%;
+  height: 190px;
+  object-fit: cover;
+  border-radius: 11px;
+  background: #f4f6f8;
+}
+
+.clothing-card select {
+  width: 100%;
+  margin-top: 10px;
+  padding: 11px;
+  border: 1px solid #d7deea;
+  border-radius: 8px;
+  background: white;
+  color: #0f1b2d;
+}
+
+.remove-button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background: #f2f4f7;
+  color: #596779;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.remove-button:hover {
+  background: #e7ebf0;
+}
+
+/* =========================
+   PREFERENCES PAGE
+========================= */
+
+.preferences-page {
+  max-width: 950px;
+  margin: 0 auto;
+  padding: 70px 30px 100px;
+}
+
+.preferences-page h1 {
+  margin: 10px 0;
+  font-size: 52px;
+  letter-spacing: -1.5px;
+  color: #0f1b2d;
+}
+
+.preferences-description {
+  max-width: 680px;
+  margin-bottom: 48px;
+  color: #68778a;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+.preference-section {
+  margin-bottom: 42px;
+}
+
+.preference-section h2 {
+  margin-bottom: 16px;
+  font-size: 20px;
+  color: #0f1b2d;
+}
+
+.option-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.weather-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.option-card {
+  padding: 20px 16px;
+  border: 1px solid #dce3ed;
+  border-radius: 12px;
+  background: white;
+  color: #42526a;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.option-card:hover {
+  border-color: #2f63d7;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15, 27, 45, 0.07);
+}
+
+.option-card.selected {
+  border: 2px solid #2f63d7;
+  background: #edf3ff;
+  color: #2f63d7;
+}
+
+.optional {
+  color: #8996a8;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.preference-input {
+  width: 100%;
+  min-height: 125px;
+  padding: 18px;
+  border: 1px solid #dce3ed;
+  border-radius: 12px;
+  background: white;
+  color: #0f1b2d;
+  font-size: 16px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.preference-input:focus {
+  outline: none;
+  border-color: #2f63d7;
+  box-shadow: 0 0 0 3px rgba(47, 99, 215, 0.1);
+}
+
+/* =========================
+   PAGE ACTIONS
+========================= */
+
+.page-actions {
+  margin-top: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 /* =========================
@@ -377,7 +609,7 @@ a {
   }
 
   .hero-visual {
-    min-height: 500px;
+    min-height: 520px;
   }
 
   .wardrobe-card {
@@ -391,28 +623,51 @@ a {
 
 @media (max-width: 700px) {
   .navbar {
+    height: 76px;
     padding: 0 22px;
+  }
+
+  .logo {
+    font-size: 21px;
   }
 
   .nav-links {
     display: none;
   }
 
+  .nav-right {
+    gap: 0;
+  }
+
+  .nav-button {
+    padding: 11px 16px;
+  }
+
   .hero {
-    padding: 60px 22px 40px;
+    padding: 55px 22px 50px;
   }
 
   .hero h1 {
-    font-size: 48px;
+    font-size: 46px;
     letter-spacing: -1.5px;
+  }
+
+  .hero-description {
+    font-size: 17px;
   }
 
   .hero-actions {
     flex-direction: column;
   }
 
+  .primary-button,
+  .secondary-button {
+    width: 100%;
+  }
+
   .hero-visual {
-    min-height: 620px;
+    min-height: 650px;
+    flex-direction: column;
   }
 
   .wardrobe-card {
@@ -423,132 +678,150 @@ a {
     position: relative;
     right: auto;
     bottom: auto;
-    width: 85%;
-    margin-top: 20px;
+    width: 90%;
+    margin-top: 22px;
   }
 
   .features {
     margin: 0 22px 40px;
     grid-template-columns: 1fr;
   }
-}
-.wardrobe-page {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 80px 30px;
+
+  .wardrobe-page,
+  .preferences-page {
+    padding: 50px 22px 80px;
+  }
+
+  .wardrobe-page h1,
+  .preferences-page h1 {
+    font-size: 40px;
+  }
+
+  .clothes-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .option-grid,
+  .weather-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .page-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .page-actions button {
+    width: 100%;
+  }
 }
 
-.wardrobe-page h1 {
+@media (max-width: 480px) {
+  .clothes-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .option-grid,
+  .weather-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    font-size: 40px;
+  }
+}
+/* =========================
+   RECOMMENDATION PAGE
+========================= */
+
+.recommendation-page {
+  max-width: 950px;
+  margin: 0 auto;
+  padding: 70px 30px 100px;
+}
+
+.recommendation-page h1 {
   margin: 10px 0;
   font-size: 52px;
+  letter-spacing: -1.5px;
   color: #0f1b2d;
 }
 
-.wardrobe-description {
-  max-width: 650px;
+.recommendation-intro {
+  max-width: 680px;
   margin-bottom: 40px;
   color: #68778a;
   font-size: 18px;
   line-height: 1.6;
 }
 
-.upload-section {
-  margin-bottom: 24px;
-  padding: 28px;
+.recommendation-card {
+  padding: 32px;
   background: white;
   border: 1px solid #e3e9f1;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(15, 27, 45, 0.05);
+  border-radius: 20px;
+  box-shadow: 0 18px 45px rgba(15, 27, 45, 0.08);
 }
 
-.upload-section h3 {
-  margin-top: 0;
-}
-.upload-box {
-  min-height: 130px;
-  border: 2px dashed #c9d4e3;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  background: #f8fafe;
-  color: #2f63d7;
+.score {
+  display: inline-block;
+  margin-bottom: 25px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  background: #eaf8f1;
+  color: #23835a;
   font-weight: 700;
-  transition: 0.2s ease;
 }
 
-.upload-box:hover {
-  border-color: #2f63d7;
-  background: #f2f6ff;
-}
-
-.user-photo-preview {
-  margin-top: 20px;
-}
-
-.user-photo-preview img {
-  width: 180px;
-  height: 220px;
-  object-fit: cover;
-  border-radius: 14px;
-  border: 1px solid #e1e7ef;
-}
-
-.clothes-grid {
+.recommendation-items {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 18px;
-  margin-top: 24px;
 }
 
-.clothing-card {
-  padding: 12px;
-  background: #ffffff;
-  border: 1px solid #e1e7ef;
+.recommendation-item {
+  padding: 20px;
   border-radius: 14px;
+  background: #f7f9fc;
+  border: 1px solid #e7ebf1;
 }
 
-.clothing-card img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 10px;
-  background: #f4f6f8;
+.recommendation-item span {
+  display: block;
+  margin-bottom: 8px;
+  color: #7a8798;
+  font-size: 13px;
 }
 
-.clothing-card select {
-  width: 100%;
-  margin-top: 10px;
-  padding: 10px;
-  border: 1px solid #d7deea;
-  border-radius: 8px;
-  background: white;
+.recommendation-item strong {
+  color: #0f1b2d;
+  font-size: 16px;
 }
 
-.remove-button {
-  width: 100%;
-  margin-top: 8px;
-  padding: 9px;
-  border: none;
-  border-radius: 8px;
-  background: #f4f6f8;
-  color: #596779;
-  cursor: pointer;
+.reason-box {
+  margin-top: 25px;
+  padding: 22px;
+  border-radius: 14px;
+  background: #edf3ff;
 }
 
-.remove-button:hover {
-  background: #e9edf2;
+.reason-box h3 {
+  margin-top: 0;
+  color: #0f1b2d;
 }
 
-.primary-button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  transform: none;
+.reason-box p {
+  margin-bottom: 0;
+  color: #53657b;
+  line-height: 1.6;
 }
 
 @media (max-width: 700px) {
-  .clothes-grid {
-    grid-template-columns: 1fr 1fr;
+  .recommendation-items {
+    grid-template-columns: 1fr;
+  }
+
+  .recommendation-page h1 {
+    font-size: 40px;
   }
 }
