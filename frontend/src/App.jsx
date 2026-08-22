@@ -1,625 +1,1248 @@
 import { useState } from 'react'
 import './App.css'
 
+
 function App() {
+
+  // ==================================================
+  // PAGE STATE
+  // ==================================================
+
   const [currentPage, setCurrentPage] = useState('home')
 
+
+  // ==================================================
+  // USER PHOTO
+  // ==================================================
+
   const [userPhoto, setUserPhoto] = useState(null)
+
+
+  // ==================================================
+  // CLOTHING
+  // ==================================================
+
   const [clothes, setClothes] = useState([])
+
+
+  // ==================================================
+  // PREFERENCES
+  // ==================================================
 
   const [occasion, setOccasion] = useState('')
   const [style, setStyle] = useState('')
   const [weather, setWeather] = useState('')
   const [preference, setPreference] = useState('')
 
+
+  // ==================================================
+  // RECOMMENDATION
+  // ==================================================
+
   const [recommendation, setRecommendation] = useState(null)
 
+  const [loading, setLoading] = useState(false)
+
+  const [error, setError] = useState('')
+
+
+  // ==================================================
+  // OPTIONS
+  // ==================================================
+
+  const categories = [
+    'Top',
+    'Bottom',
+    'Jacket',
+    'Shoes',
+    'Accessory'
+  ]
+
+
+  const occasions = [
+    'Job Interview',
+    'College',
+    'Presentation',
+    'Date',
+    'Party',
+    'Casual Outing'
+  ]
+
+
+  const styles = [
+    'Professional',
+    'Smart Casual',
+    'Casual',
+    'Minimal',
+    'Trendy',
+    'Streetwear'
+  ]
+
+
+  const weatherOptions = [
+    'Hot',
+    'Mild',
+    'Cold',
+    'Rainy'
+  ]
+
+
+  // ==================================================
+  // USER PHOTO UPLOAD
+  // ==================================================
+
   function handleUserPhoto(event) {
+
     const file = event.target.files[0]
 
-    if (!file) return
+    if (!file) {
+      return
+    }
 
-    const imageUrl = URL.createObjectURL(file)
+
+    if (userPhoto?.preview) {
+      URL.revokeObjectURL(userPhoto.preview)
+    }
+
 
     setUserPhoto({
-      file,
-      preview: imageUrl,
+      file: file,
+      preview: URL.createObjectURL(file)
     })
   }
 
+
+  // ==================================================
+  // CLOTHING UPLOAD
+  // ==================================================
+
   function handleClothesUpload(event) {
-    const files = Array.from(event.target.files)
 
-    const newClothes = files.map((file) => ({
-      id: crypto.randomUUID(),
-      file,
-      preview: URL.createObjectURL(file),
-      category: 'Top',
-    }))
+    const uploadedFiles = Array.from(
+      event.target.files
+    )
 
-    setClothes((previousClothes) => [
-      ...previousClothes,
-      ...newClothes,
-    ])
+
+    const newItems = uploadedFiles.map(
+      (file) => ({
+        id: crypto.randomUUID(),
+
+        file: file,
+
+        preview:
+          URL.createObjectURL(file),
+
+        category: 'Top'
+      })
+    )
+
+
+    setClothes(
+      (previousClothes) => [
+        ...previousClothes,
+        ...newItems
+      ]
+    )
+
+
+    event.target.value = ''
   }
 
-  function changeCategory(id, newCategory) {
-    setClothes((previousClothes) =>
-      previousClothes.map((item) =>
-        item.id === id
-          ? { ...item, category: newCategory }
-          : item
+
+  // ==================================================
+  // CHANGE CLOTHING CATEGORY
+  // ==================================================
+
+  function changeCategory(id, category) {
+
+    setClothes(
+      clothes.map(
+        (item) => {
+
+          if (item.id === id) {
+
+            return {
+              ...item,
+              category: category
+            }
+          }
+
+          return item
+        }
       )
     )
   }
 
+
+  // ==================================================
+  // REMOVE CLOTHING ITEM
+  // ==================================================
+
   function removeClothing(id) {
-    setClothes((previousClothes) =>
-      previousClothes.filter((item) => item.id !== id)
+
+    const itemToRemove = clothes.find(
+      (item) => item.id === id
+    )
+
+
+    if (itemToRemove) {
+      URL.revokeObjectURL(
+        itemToRemove.preview
+      )
+    }
+
+
+    setClothes(
+      clothes.filter(
+        (item) => item.id !== id
+      )
     )
   }
 
+
+  // ==================================================
+  // MOVE TO PREFERENCES
+  // ==================================================
+
+  function goToPreferences() {
+
+    setError('')
+
+
+    if (!userPhoto) {
+
+      setError(
+        'Please upload a photo of yourself first.'
+      )
+
+      return
+    }
+
+
+    if (clothes.length === 0) {
+
+      setError(
+        'Please upload at least one clothing item.'
+      )
+
+      return
+    }
+
+
+    setCurrentPage('preferences')
+  }
+
+
+  // ==================================================
+  // SEND DATA TO FLASK
+  // ==================================================
+
   async function getRecommendation() {
+
+    setError('')
+
+
+    if (!occasion) {
+
+      setError(
+        'Please select an occasion.'
+      )
+
+      return
+    }
+
+
+    if (!style) {
+
+      setError(
+        'Please select a style.'
+      )
+
+      return
+    }
+
+
+    if (!weather) {
+
+      setError(
+        'Please select the weather.'
+      )
+
+      return
+    }
+
+
     try {
+
+      setLoading(true)
+
+
+      const formData = new FormData()
+
+
+      // User photo
+      formData.append(
+        'userPhoto',
+        userPhoto.file
+      )
+
+
+      // Clothing images
+      clothes.forEach(
+        (item) => {
+
+          formData.append(
+            'clothes',
+            item.file
+          )
+        }
+      )
+
+
+      // Clothing categories
+      const clothingCategories =
+        clothes.map(
+          (item) => ({
+
+            name:
+              item.file.name,
+
+            category:
+              item.category
+
+          })
+        )
+
+
+      formData.append(
+        'clothingCategories',
+
+        JSON.stringify(
+          clothingCategories
+        )
+      )
+
+
+      // Preferences
+      formData.append(
+        'occasion',
+        occasion
+      )
+
+
+      formData.append(
+        'style',
+        style
+      )
+
+
+      formData.append(
+        'weather',
+        weather
+      )
+
+
+      formData.append(
+        'preference',
+        preference
+      )
+
+
+      // Send request to Flask
       const response = await fetch(
         'http://127.0.0.1:5000/recommend',
         {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            occasion,
-            style,
-            weather,
-            preference,
-          }),
+          body: formData
         }
       )
 
+
       const data = await response.json()
 
+
+      if (!response.ok) {
+
+        throw new Error(
+          data.error ||
+          'Something went wrong.'
+        )
+      }
+
+
+      console.log(
+        'AI Recommendation:',
+        data
+      )
+
+
       setRecommendation(data)
-      setCurrentPage('recommendation')
+
+      setCurrentPage(
+        'recommendation'
+      )
+
+
     } catch (error) {
+
       console.error(error)
-      alert('Something went wrong.')
+
+      setError(
+        error.message
+      )
+
+    } finally {
+
+      setLoading(false)
     }
   }
 
-  if (currentPage === 'wardrobe') {
+
+  // ==================================================
+  // FIND PREVIEW FOR SELECTED AI ITEM
+  // ==================================================
+
+  function getSelectedPreview(itemData) {
+
+    if (!itemData) {
+      return null
+    }
+
+
+    const matchingItem =
+      clothes.find(
+        (item) =>
+          item.file.name ===
+          itemData.filename
+      )
+
+
+    return matchingItem
+      ? matchingItem.preview
+      : null
+  }
+
+
+  // ==================================================
+  // RESET APP
+  // ==================================================
+
+  function startAgain() {
+
+    setRecommendation(null)
+
+    setOccasion('')
+    setStyle('')
+    setWeather('')
+    setPreference('')
+
+    setError('')
+
+    setCurrentPage(
+      'wardrobe'
+    )
+  }
+
+
+  // ==================================================
+  // HOME PAGE
+  // ==================================================
+
+  if (currentPage === 'home') {
+
     return (
+
       <div className="app">
+
         <nav className="navbar">
-          <h2
-            className="logo"
-            onClick={() => setCurrentPage('home')}
-            style={{ cursor: 'pointer' }}
-          >
-            SmartCloset AI
-          </h2>
+
+          <div className="logo">
+            SmartCloset
+            <span>AI</span>
+          </div>
+
+          <div className="nav-tag">
+            AI Personal Stylist
+          </div>
+
         </nav>
 
-        <main className="wardrobe-page">
-          <p className="badge">STEP 1 OF 3</p>
 
-          <h1>Build Your Wardrobe</h1>
+        <main className="hero">
 
-          <p className="wardrobe-description">
-            Upload a photo of yourself and the clothes you already own.
-            Then organize each clothing item by category.
+          <div className="hero-badge">
+            YOUR WARDROBE. SMARTER.
+          </div>
+
+
+          <h1>
+            Dress Better With
+            <span>
+              {' '}What You Already Own.
+            </span>
+          </h1>
+
+
+          <p className="hero-description">
+
+            SmartCloset AI analyzes the clothes
+            you already own and builds an outfit
+            for your occasion, style and weather.
+
           </p>
 
+
+          <button
+            className="primary-button hero-button"
+
+            onClick={() =>
+              setCurrentPage(
+                'wardrobe'
+              )
+            }
+          >
+
+            Build My Outfit →
+
+          </button>
+
+
+          <div className="hero-features">
+
+            <div>
+              <strong>01</strong>
+              <span>
+                Upload your wardrobe
+              </span>
+            </div>
+
+
+            <div>
+              <strong>02</strong>
+              <span>
+                Tell us your plans
+              </span>
+            </div>
+
+
+            <div>
+              <strong>03</strong>
+              <span>
+                Get your AI outfit
+              </span>
+            </div>
+
+          </div>
+
+        </main>
+
+      </div>
+    )
+  }
+
+
+  // ==================================================
+  // WARDROBE PAGE
+  // ==================================================
+
+  if (currentPage === 'wardrobe') {
+
+    return (
+
+      <div className="app">
+
+        <nav className="navbar">
+
+          <button
+            className="back-button"
+
+            onClick={() =>
+              setCurrentPage('home')
+            }
+          >
+
+            ← Back
+
+          </button>
+
+
+          <div className="logo">
+            SmartCloset
+            <span>AI</span>
+          </div>
+
+
+          <div className="step-label">
+            STEP 1 OF 2
+          </div>
+
+        </nav>
+
+
+        <main className="page-container">
+
+          <div className="page-heading">
+
+            <p className="eyebrow">
+              BUILD YOUR DIGITAL WARDROBE
+            </p>
+
+            <h2>
+              Show us what you're
+              working with.
+            </h2>
+
+            <p>
+              Upload a photo of yourself,
+              then add clothing from your
+              closet.
+            </p>
+
+          </div>
+
+
+          {error && (
+            <div className="error-message">
+              {error}
+            </div>
+          )}
+
+
           <section className="upload-section">
-            <h3>Your Photo</h3>
 
-            <label className="upload-box">
-              <span>Upload your photo</span>
+            <div className="section-heading">
 
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleUserPhoto}
-                hidden
-              />
-            </label>
+              <div>
+                <span className="section-number">
+                  01
+                </span>
 
-            {userPhoto && (
-              <div className="user-photo-preview">
+                <h3>
+                  Your Photo
+                </h3>
+              </div>
+
+              <span className="required">
+                REQUIRED
+              </span>
+
+            </div>
+
+
+            <label className="photo-upload">
+
+              {userPhoto ? (
+
                 <img
                   src={userPhoto.preview}
                   alt="User preview"
                 />
-              </div>
-            )}
+
+              ) : (
+
+                <div className="upload-placeholder">
+
+                  <div className="upload-icon">
+                    +
+                  </div>
+
+                  <strong>
+                    Upload your photo
+                  </strong>
+
+                  <span>
+                    JPG or PNG
+                  </span>
+
+                </div>
+              )}
+
+
+              <input
+                type="file"
+                accept="image/*"
+                onChange={
+                  handleUserPhoto
+                }
+              />
+
+            </label>
+
           </section>
 
-          <section className="upload-section">
-            <h3>Your Clothes</h3>
 
-            <label className="upload-box">
-              <span>+ Add clothing images</span>
+          <section className="upload-section">
+
+            <div className="section-heading">
+
+              <div>
+
+                <span className="section-number">
+                  02
+                </span>
+
+                <h3>
+                  Your Clothes
+                </h3>
+
+              </div>
+
+
+              <span className="item-count">
+                {clothes.length} ITEMS
+              </span>
+
+            </div>
+
+
+            <label className="clothes-upload">
+
+              <span className="upload-icon">
+                +
+              </span>
+
+              <strong>
+                Add clothing
+              </strong>
+
+              <span>
+                Select multiple images
+              </span>
+
 
               <input
                 type="file"
                 accept="image/*"
                 multiple
-                onChange={handleClothesUpload}
-                hidden
+                onChange={
+                  handleClothesUpload
+                }
               />
+
             </label>
 
-            <div className="clothes-grid">
-              {clothes.map((item) => (
-                <div
-                  className="clothing-card"
-                  key={item.id}
-                >
-                  <img
-                    src={item.preview}
-                    alt="Uploaded clothing"
-                  />
 
-                  <select
-                    value={item.category}
-                    onChange={(event) =>
-                      changeCategory(
-                        item.id,
-                        event.target.value
-                      )
-                    }
-                  >
-                    <option>Top</option>
-                    <option>Bottom</option>
-                    <option>Jacket</option>
-                    <option>Shoes</option>
-                    <option>Accessory</option>
-                  </select>
+            {clothes.length > 0 && (
 
-                  <button
-                    className="remove-button"
-                    onClick={() =>
-                      removeClothing(item.id)
-                    }
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
+              <div className="clothes-grid">
+
+                {clothes.map(
+                  (item) => (
+
+                    <div
+                      className="clothing-card"
+                      key={item.id}
+                    >
+
+                      <div className="clothing-image">
+
+                        <img
+                          src={item.preview}
+                          alt="Clothing"
+                        />
+
+
+                        <button
+                          className="remove-button"
+
+                          onClick={() =>
+                            removeClothing(
+                              item.id
+                            )
+                          }
+                        >
+                          ×
+                        </button>
+
+                      </div>
+
+
+                      <select
+                        value={item.category}
+
+                        onChange={(event) =>
+                          changeCategory(
+                            item.id,
+                            event.target.value
+                          )
+                        }
+                      >
+
+                        {categories.map(
+                          (category) => (
+
+                            <option
+                              value={category}
+                              key={category}
+                            >
+                              {category}
+                            </option>
+
+                          )
+                        )}
+
+                      </select>
+
+                    </div>
+
+                  )
+                )}
+
+              </div>
+            )}
+
           </section>
 
+
           <div className="page-actions">
-            <button
-              className="secondary-button"
-              onClick={() => setCurrentPage('home')}
-            >
-              ← Back
-            </button>
 
             <button
               className="primary-button"
-              disabled={
-                !userPhoto || clothes.length === 0
-              }
-              onClick={() =>
-                setCurrentPage('preferences')
+
+              onClick={
+                goToPreferences
               }
             >
+
               Continue →
+
             </button>
+
           </div>
+
         </main>
+
       </div>
     )
   }
+
+
+  // ==================================================
+  // PREFERENCES PAGE
+  // ==================================================
 
   if (currentPage === 'preferences') {
+
     return (
+
       <div className="app">
+
         <nav className="navbar">
-          <h2
-            className="logo"
-            onClick={() => setCurrentPage('home')}
-            style={{ cursor: 'pointer' }}
-          >
-            SmartCloset AI
-          </h2>
-        </nav>
-
-        <main className="preferences-page">
-          <p className="badge">STEP 2 OF 3</p>
-
-          <h1>What's the occasion?</h1>
-
-          <p className="preferences-description">
-            Tell SmartCloset where you're going and how you want
-            to look. We'll find the best match from your wardrobe.
-          </p>
-
-          <section className="preference-section">
-            <h2>Occasion</h2>
-
-            <div className="option-grid">
-              {[
-                'Job Interview',
-                'College',
-                'Presentation',
-                'Date',
-                'Party',
-                'Casual Outing',
-              ].map((item) => (
-                <button
-                  key={item}
-                  className={
-                    occasion === item
-                      ? 'option-card selected'
-                      : 'option-card'
-                  }
-                  onClick={() => setOccasion(item)}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="preference-section">
-            <h2>Style</h2>
-
-            <div className="option-grid">
-              {[
-                'Professional',
-                'Smart Casual',
-                'Casual',
-                'Minimal',
-                'Trendy',
-                'Streetwear',
-              ].map((item) => (
-                <button
-                  key={item}
-                  className={
-                    style === item
-                      ? 'option-card selected'
-                      : 'option-card'
-                  }
-                  onClick={() => setStyle(item)}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="preference-section">
-            <h2>Weather</h2>
-
-            <div className="option-grid weather-grid">
-              {[
-                'Hot',
-                'Mild',
-                'Cold',
-                'Rainy',
-              ].map((item) => (
-                <button
-                  key={item}
-                  className={
-                    weather === item
-                      ? 'option-card selected'
-                      : 'option-card'
-                  }
-                  onClick={() => setWeather(item)}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="preference-section">
-            <h2>
-              Anything else?
-              <span className="optional">
-                {' '}
-                Optional
-              </span>
-            </h2>
-
-            <textarea
-              className="preference-input"
-              placeholder="Example: I want to look professional but not overdressed."
-              value={preference}
-              onChange={(event) =>
-                setPreference(event.target.value)
-              }
-            />
-          </section>
-
-          <div className="page-actions">
-            <button
-              className="secondary-button"
-              onClick={() =>
-                setCurrentPage('wardrobe')
-              }
-            >
-              ← Back
-            </button>
-
-            <button
-              className="primary-button"
-              disabled={!occasion || !style}
-              onClick={getRecommendation}
-            >
-              Find My Outfit →
-            </button>
-          </div>
-        </main>
-      </div>
-    )
-  }
-
-  if (
-    currentPage === 'recommendation' &&
-    recommendation
-  ) {
-    return (
-      <div className="app">
-        <nav className="navbar">
-          <h2
-            className="logo"
-            onClick={() => setCurrentPage('home')}
-            style={{ cursor: 'pointer' }}
-          >
-            SmartCloset AI
-          </h2>
-        </nav>
-
-        <main className="recommendation-page">
-          <p className="badge">STEP 3 OF 3</p>
-
-          <h1>Your SmartCloset Outfit</h1>
-
-          <p className="recommendation-intro">
-            Based on your wardrobe, occasion, style, and preferences,
-            here's the outfit SmartCloset recommends.
-          </p>
-
-          <div className="recommendation-card">
-            <div className="score">
-              {recommendation.score}% Match
-            </div>
-
-            <div className="recommendation-items">
-              <div className="recommendation-item">
-                <span>Top</span>
-                <strong>{recommendation.top}</strong>
-              </div>
-
-              <div className="recommendation-item">
-                <span>Bottom</span>
-                <strong>{recommendation.bottom}</strong>
-              </div>
-
-              <div className="recommendation-item">
-                <span>Shoes</span>
-                <strong>{recommendation.shoes}</strong>
-              </div>
-            </div>
-
-            <div className="reason-box">
-              <h3>Why this works</h3>
-              <p>{recommendation.reason}</p>
-            </div>
-          </div>
-
-          <div className="page-actions">
-            <button
-              className="secondary-button"
-              onClick={() =>
-                setCurrentPage('preferences')
-              }
-            >
-              ← Change Preferences
-            </button>
-
-            <button className="primary-button">
-              Try It On →
-            </button>
-          </div>
-        </main>
-      </div>
-    )
-  }
-
-  return (
-    <div className="app">
-      <nav className="navbar">
-        <h2 className="logo">
-          SmartCloset AI
-        </h2>
-
-        <div className="nav-right">
-          <div className="nav-links">
-            <a href="#">Home</a>
-            <a href="#">My Wardrobe</a>
-            <a href="#">Outfits</a>
-            <a href="#">About</a>
-          </div>
 
           <button
-            className="nav-button"
+            className="back-button"
+
             onClick={() =>
-              setCurrentPage('wardrobe')
+              setCurrentPage(
+                'wardrobe'
+              )
             }
           >
-            Get Started
+            ← Back
           </button>
-        </div>
-      </nav>
 
-      <main className="hero">
-        <div className="hero-content">
-          <p className="badge">
-            ✦ AI-POWERED PERSONAL STYLIST
-          </p>
 
-          <h1>
-            Dress Better With
-            <br />
-            What You <span>Already Own.</span>
-          </h1>
+          <div className="logo">
+            SmartCloset
+            <span>AI</span>
+          </div>
 
-          <p className="hero-description">
-            SmartCloset AI understands your wardrobe,
-            your occasion, and your personal style to
-            recommend the perfect outfit — without
-            buying something new.
-          </p>
 
-          <div className="hero-actions">
+          <div className="step-label">
+            STEP 2 OF 2
+          </div>
+
+        </nav>
+
+
+        <main className="page-container preferences-page">
+
+          <div className="page-heading">
+
+            <p className="eyebrow">
+              ALMOST THERE
+            </p>
+
+            <h2>
+              What's the plan?
+            </h2>
+
+            <p>
+              Give your AI stylist some
+              context so it can choose the
+              right outfit.
+            </p>
+
+          </div>
+
+
+          {error && (
+            <div className="error-message">
+              {error}
+            </div>
+          )}
+
+
+          <OptionSection
+            number="01"
+            title="Occasion"
+            options={occasions}
+            selected={occasion}
+            onSelect={setOccasion}
+          />
+
+
+          <OptionSection
+            number="02"
+            title="Style"
+            options={styles}
+            selected={style}
+            onSelect={setStyle}
+          />
+
+
+          <OptionSection
+            number="03"
+            title="Weather"
+            options={
+              weatherOptions
+            }
+            selected={weather}
+            onSelect={setWeather}
+          />
+
+
+          <section className="preference-section">
+
+            <div className="section-heading">
+
+              <div>
+
+                <span className="section-number">
+                  04
+                </span>
+
+                <h3>
+                  Anything else?
+                </h3>
+
+              </div>
+
+
+              <span className="optional">
+                OPTIONAL
+              </span>
+
+            </div>
+
+
+            <textarea
+              value={preference}
+
+              onChange={(event) =>
+                setPreference(
+                  event.target.value
+                )
+              }
+
+              placeholder="Example: I want to look professional but not overdressed."
+            />
+
+          </section>
+
+
+          <div className="page-actions">
+
+            <button
+              className="primary-button"
+
+              onClick={
+                getRecommendation
+              }
+
+              disabled={loading}
+            >
+
+              {loading
+                ? 'AI is building your outfit...'
+                : 'Find My Outfit →'
+              }
+
+            </button>
+
+          </div>
+
+
+          {loading && (
+
+            <div className="loading-box">
+
+              <div className="spinner"></div>
+
+              <p>
+                SmartCloset AI is analyzing
+                your wardrobe...
+              </p>
+
+            </div>
+          )}
+
+        </main>
+
+      </div>
+    )
+  }
+
+
+  // ==================================================
+  // RECOMMENDATION PAGE
+  // ==================================================
+
+  if (
+    currentPage === 'recommendation'
+    && recommendation
+  ) {
+
+    const selected =
+      recommendation.selected_items || {}
+
+
+    const displayedItems = [
+      ['Top', selected.top],
+      ['Bottom', selected.bottom],
+      ['Shoes', selected.shoes],
+      ['Jacket', selected.jacket],
+      ['Accessory', selected.accessory]
+    ].filter(
+      ([, item]) => item !== null
+    )
+
+
+    return (
+
+      <div className="app">
+
+        <nav className="navbar">
+
+          <div className="logo">
+            SmartCloset
+            <span>AI</span>
+          </div>
+
+
+          <div className="step-label">
+            YOUR OUTFIT
+          </div>
+
+        </nav>
+
+
+        <main className="recommendation-container">
+
+          <div className="recommendation-header">
+
+            <p className="eyebrow">
+              SMARTCLOSET AI PICK
+            </p>
+
+
+            <h2>
+              Your outfit is ready.
+            </h2>
+
+
+            <p>
+              Built entirely from clothes
+              you already own.
+            </p>
+
+          </div>
+
+
+          <div className="score-card">
+
+            <span>
+              MATCH SCORE
+            </span>
+
+            <strong>
+              {recommendation.score}
+              <small>/100</small>
+            </strong>
+
+          </div>
+
+
+          <div className="selected-outfit-grid">
+
+            {displayedItems.map(
+              ([label, item]) => {
+
+                const preview =
+                  getSelectedPreview(
+                    item
+                  )
+
+
+                return (
+
+                  <div
+                    className="selected-item-card"
+                    key={label}
+                  >
+
+                    <div className="selected-image">
+
+                      {preview ? (
+
+                        <img
+                          src={preview}
+                          alt={label}
+                        />
+
+                      ) : (
+
+                        <div className="no-preview">
+                          {label}
+                        </div>
+                      )}
+
+                    </div>
+
+
+                    <span className="selected-category">
+                      {label}
+                    </span>
+
+
+                    <strong>
+                      {item.filename}
+                    </strong>
+
+                  </div>
+                )
+              }
+            )}
+
+          </div>
+
+
+          <div className="reason-card">
+
+            <span className="reason-label">
+              WHY IT WORKS
+            </span>
+
+            <p>
+              {recommendation.reason}
+            </p>
+
+          </div>
+
+
+          <div className="recommendation-actions">
+
+            <button
+              className="secondary-button"
+
+              onClick={
+                startAgain
+              }
+            >
+              Build Another Outfit
+            </button>
+
+
             <button
               className="primary-button"
               onClick={() =>
-                setCurrentPage('wardrobe')
+                alert(
+                  'Perfect Corp virtual try-on is the next milestone!'
+                )
               }
             >
-              Build My Outfit →
+              Try It On →
             </button>
 
-            <button className="secondary-button">
-              See How It Works
+          </div>
+
+        </main>
+
+      </div>
+    )
+  }
+
+
+  return null
+}
+
+
+// ==================================================
+// REUSABLE OPTION COMPONENT
+// ==================================================
+
+function OptionSection({
+  number,
+  title,
+  options,
+  selected,
+  onSelect
+}) {
+
+  return (
+
+    <section className="option-section">
+
+      <div className="section-heading">
+
+        <div>
+
+          <span className="section-number">
+            {number}
+          </span>
+
+          <h3>
+            {title}
+          </h3>
+
+        </div>
+
+      </div>
+
+
+      <div className="option-grid">
+
+        {options.map(
+          (option) => (
+
+            <button
+              type="button"
+
+              key={option}
+
+              className={
+                selected === option
+                  ? 'option-button selected'
+                  : 'option-button'
+              }
+
+              onClick={() =>
+                onSelect(option)
+              }
+            >
+
+              {option}
+
             </button>
-          </div>
 
-          <p className="social-proof">
-            AI styling built around the clothes you
-            already own.
-          </p>
-        </div>
+          )
+        )}
 
-        <div className="hero-visual">
-          <div className="visual-glow"></div>
+      </div>
 
-          <div className="wardrobe-card">
-            <div className="card-heading">
-              <h3>My Wardrobe</h3>
-
-              <button className="add-item-button">
-                + Add Item
-              </button>
-            </div>
-
-            <div className="wardrobe-grid">
-              <div className="clothing-item">Top</div>
-              <div className="clothing-item">
-                Jacket
-              </div>
-              <div className="clothing-item">
-                Sweater
-              </div>
-              <div className="clothing-item">
-                Pants
-              </div>
-              <div className="clothing-item">
-                Shoes
-              </div>
-              <div className="clothing-item">
-                Watch
-              </div>
-            </div>
-          </div>
-
-          <div className="outfit-card">
-            <p className="outfit-label">
-              Smart Recommendation
-            </p>
-
-            <h3>Your Outfit</h3>
-
-            <div className="outfit-preview">
-              Outfit preview
-            </div>
-
-            <div className="outfit-meta">
-              <span>Business Casual</span>
-
-              <span className="match-score">
-                94% Match
-              </span>
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <section className="features">
-        <div className="feature">
-          <div className="feature-icon">
-            ◫
-          </div>
-
-          <div>
-            <h4>
-              Understand Your Wardrobe
-            </h4>
-
-            <p>
-              Upload clothes and keep everything
-              organized.
-            </p>
-          </div>
-        </div>
-
-        <div className="feature">
-          <div className="feature-icon">
-            ✦
-          </div>
-
-          <div>
-            <h4>
-              AI Outfit Recommendations
-            </h4>
-
-            <p>
-              Get personalized outfit ideas for
-              any occasion.
-            </p>
-          </div>
-        </div>
-
-        <div className="feature">
-          <div className="feature-icon">
-            ◷
-          </div>
-
-          <div>
-            <h4>Any Occasion</h4>
-
-            <p>
-              From presentations to dates and
-              casual outings.
-            </p>
-          </div>
-        </div>
-
-        <div className="feature">
-          <div className="feature-icon">
-            ♡
-          </div>
-
-          <div>
-            <h4>
-              Your Style, Your Way
-            </h4>
-
-            <p>
-              Recommendations that match your own
-              preferences.
-            </p>
-          </div>
-        </div>
-      </section>
-    </div>
+    </section>
   )
 }
+
 
 export default App
