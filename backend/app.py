@@ -590,6 +590,16 @@ if __name__ == "__main__":
     )
 
     print("Backend starting...\n")
+    print("Perfect Corp key exists:", bool(PERFECTCORP_API_KEY))
+
+if PERFECTCORP_API_KEY:
+    print("Perfect Corp key length:", len(PERFECTCORP_API_KEY))
+    print(
+        "Perfect Corp key preview:",
+        PERFECTCORP_API_KEY[:4]
+        + "..."
+        + PERFECTCORP_API_KEY[-4:]
+    )
 
     app.run(
         debug=True,
